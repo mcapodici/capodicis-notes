@@ -1,0 +1,29 @@
+body, html
+{
+  min-height: 400px;
+  min-width: 400px;
+}
+
+table#summary td
+{
+  padding:5px;
+}
+
+table#summary th
+{
+  text-align:left;
+  background-color:goldenrod ;
+  color:white;
+  font-weight:bold;
+  padding-left:5px;
+}
+
+table#summary tr:nth-child(even) {
+    background-color: lightgoldenrodyellow;
+}
+
+#refresh
+{
+    margin-top:10px;
+    layout:block;
+}
