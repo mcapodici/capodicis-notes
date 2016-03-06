@@ -5,7 +5,7 @@ A simple Chrome extension that allows you to
 * Mare a 'webpage' as done, whatever that means to you. For example it could mean you are doing research on different makes of car to buy, and when you have finished the research for a particular model you click done.
 * A summary of pages, notes and whether they are done.
 
-I have just submitted to Chrome store so I will provide a link here once it is published.
+You can try ou the latest published version here: https://chrome.google.com/webstore/detail/capodicis-notes/bpdecocmkliobhlkoobndgljopopnijc?authuser=1
 
 Notes for developers and contributers:
 
