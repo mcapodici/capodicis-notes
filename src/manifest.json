@@ -7,7 +7,7 @@
       "matches": [
         "<all_urls>"
       ],
-      "js": ["extension.elm.js", "jquery-2.2.1.min.js"]
+      "js": ["content.js"]
     }
   ],
   "permissions": ["tabs", "storage"],
