@@ -7,12 +7,10 @@
       "matches": [
         "<all_urls>"
       ],
-      "js": ["extension.elm.js", "extension.loader.js", "jquery-2.2.1.min.js"]
+      "js": ["extension.elm.js", "jquery-2.2.1.min.js"]
     }
   ],
-  "permissions": [
-   "tabs"
-],
+  "permissions": ["tabs", "storage"],
   "browser_action": {
     "default_icon": {
       "19": "images/icon19.png",

@@ -6,8 +6,7 @@ import Html.Events exposing (on, targetValue, targetChecked, onClick)
 import Signal exposing (message)
 import StartApp exposing (start)
 import Effects exposing (..)
---import String
-import Storage
+import ExtensionStorage
 import Task exposing (Task)
 import Shared exposing (encode, decode, trim)
 
@@ -29,11 +28,8 @@ for = flip List.map
 mapT : Task a b -> (b -> c) -> Task a c
 mapT = flip Task.map
 
-doLookups : List String -> Task String (List (String, Shared.Model))
-doLookups = List.map (\s -> Storage.getItem s decode |> Task.map ((,) s) ) >> Task.sequence
-
 retrieve : Effects Action
-retrieve = Storage.keys `Task.andThen` doLookups
+retrieve = ExtensionStorage.getAll decode
   |> Task.toMaybe
   |> Task.map (Show << Maybe.withDefault [])
   |> Effects.task

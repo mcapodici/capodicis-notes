@@ -6,7 +6,7 @@ import Html.Events exposing (on, targetValue, targetChecked)
 import Signal exposing (message)
 import StartApp exposing (start)
 import Effects exposing (..)
-import Storage
+import ExtensionStorage
 import Task exposing (Task)
 import Shared exposing (encode, decode, trim)
 
@@ -29,14 +29,14 @@ type Action =
 
 store : Model -> Effects Action
 store =
-  (\m -> Storage.setItem m.url (encode m.entry)) >>
+  (\m -> ExtensionStorage.setItem m.url (encode m.entry)) >>
   Task.toMaybe >>
   Task.map (always Saved) >>
   Effects.task
 
 retrieve : String -> Effects Action
 retrieve url =
-  (Storage.getItem url decode) |>
+  (ExtensionStorage.getItem url decode) |>
   Task.toMaybe |>
   Task.map (\r -> case r of
     Nothing -> DoNothing

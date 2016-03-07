@@ -1,13 +1,12 @@
-module Storage where
+module ExtensionStorage where
 
 import Json.Encode exposing (Value)
 import Json.Decode exposing (Decoder, decodeValue)
 import Task exposing (Task, succeed, fail, andThen)
-import Native.Storage
-
+import Native.ExtensionStorage
 
 getItemAsJson : String -> Task String Value
-getItemAsJson = Native.Storage.getItemAsJson
+getItemAsJson = Native.ExtensionStorage.get
 
 -- Do better error detection
 getItem : String -> Decoder value -> Task String value
@@ -19,20 +18,15 @@ getItem key decoder =
     getItemAsJson key `andThen` decode
 
 setItem : String -> Value -> Task String ()
-setItem = Native.Storage.setItem
+setItem = Native.ExtensionStorage.setItem
 
-removeItem : String -> Task String ()
-removeItem = Native.Storage.removeItem
+getAllAsJson : Task String Value
+getAllAsJson = Native.ExtensionStorage.getAll
 
-clear : Task String ()
-clear = Native.Storage.clear
-
-keys : Task String (List String)
-keys = Native.Storage.keys
-
--- keysArray : Task error (Array String)
--- keysArray : Native.Storage.keysArray
-
-
-length : Task String Int
-length = Native.Storage.length
+getAll : Decoder value -> Task String (List (String, value))
+getAll decoder =
+  let decode value = case decodeValue (Json.Decode.keyValuePairs decoder) value of
+    Ok v    -> succeed v
+    Err err -> fail "Failed"
+  in
+    getAllAsJson `andThen` decode
