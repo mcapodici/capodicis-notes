@@ -23,7 +23,7 @@ chrome.storage.sync.get(null, function(dict){
         var noteImage = document.createElement("img");
         noteImage.src = chrome.extension.getURL('images/icon19.png');
         noteImage.alt = 'Note';
-        noteImage.title = 'You have made a note on this page';
+        noteImage.title = 'You have made a note on this page: ' + data["n"];
         noteImage.style['padding'] = '2px 2px 2px 8px';
         insertAfter(links[i], noteImage);
       }
