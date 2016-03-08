@@ -6,10 +6,31 @@ chrome.storage.sync.get(null, function(dict){
     {
       var data = JSON.parse(dict[link]);
 
-      if (data && data["d"])
+      if (data)
       {
-        links[i].style.backgroundColor = "#D93600";
+        if (data["d"])
+        {
+          var tickImage = document.createElement("img");
+          tickImage.src = chrome.extension.getURL('images/tick16.png');
+          tickImage.alt = 'Done';
+          tickImage.title = 'You have completed this note';
+          tickImage.style.padding = '2px';
+          insertAfter(links[i], tickImage);
+
+          links[i].style["text-decoration"] = 'line-through';
+        }
+
+        var noteImage = document.createElement("img");
+        noteImage.src = chrome.extension.getURL('images/icon19.png');
+        noteImage.alt = 'Note';
+        noteImage.title = 'You have made a note on this page';
+        noteImage.style['padding'] = '2px 2px 2px 8px';
+        insertAfter(links[i], noteImage);
       }
     }
   }
 });
+
+function insertAfter(referenceNode, newNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
