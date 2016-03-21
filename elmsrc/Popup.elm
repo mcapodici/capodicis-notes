@@ -1,7 +1,7 @@
 module Popup where
 
 import Html exposing (..)
-import Html.Attributes exposing (style, type', value, checked, href, target, id)
+import Html.Attributes exposing (style, type', value, checked, href, target, id, class, title)
 import Html.Events exposing (on, targetValue, targetChecked)
 import Signal exposing (message)
 import StartApp exposing (start)
@@ -56,8 +56,7 @@ update action m =
 view : Signal.Address Action -> Model -> Html
 view address model =
   let mentry = model.entry in
-    div [] [
-      text <| trim 150 model.url,
+    div [ class "popupContainer" ] [
       h2 [] [text "General Notes"],
       textarea [
         value mentry.notes,
@@ -70,5 +69,5 @@ view address model =
         on "change" targetChecked (message address << UpdateDone)
         ] [],
       text "click here to mark this page as one you have dealt with.",
-      div [ id "summaryLink"] [ a [ href "extension.html?mode=summary", target "_blank"] [text "See all of your notes"]]
+      div [ id "summaryLink"] [ a [ href "extension.html?mode=summary", target "_blank"] [text "Your notes..."]]
     ]

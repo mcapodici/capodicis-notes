@@ -4,6 +4,38 @@ body, html
   min-width: 400px;
 }
 
+#summaryLink
+{
+  bottom:0;
+  right:0;
+  position: fixed;
+  z-index: 100;
+  padding: 3px;
+  border: 3px solid white;
+  background: white;
+}
+
+#summaryLink a
+{
+  font: bold 11px Arial;
+  text-decoration: none;
+  background-color: #EEEEEE;
+  color: #333333;
+  padding: 2px 6px 2px 6px;
+  border-top: 1px solid #CCCCCC;
+  border-right: 1px solid #333333;
+  border-bottom: 1px solid #333333;
+  border-left: 1px solid #CCCCCC;
+}
+
+.popupContainer textarea
+{
+  width: 100%;
+  box-sizing: border-box;
+  height: 150px;
+  resize: none;
+}
+
 table#summary td
 {
   padding:5px;
