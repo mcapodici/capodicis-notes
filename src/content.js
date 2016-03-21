@@ -10,7 +10,7 @@ var tid = setInterval( function () {
       {
         var data = JSON.parse(dict[link]);
 
-        if (data && data.n)
+        if (data && (data.n || data.d))
         {
           if (data.d)
           {
@@ -25,7 +25,7 @@ var tid = setInterval( function () {
           }
 
           var noteImage = document.createElement("img");
-          noteImage.src = chrome.extension.getURL('images/icon19.png');
+          noteImage.src = chrome.extension.getURL('images/icon16.png');
           noteImage.alt = 'Note';
           noteImage.title = 'You have made a note on this page: ' + data.n;
           noteImage.style.padding = '2px 2px 2px 8px';
