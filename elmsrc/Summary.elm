@@ -82,11 +82,12 @@ view address model = div [] <| [
 summaryTable : Signal.Address Action -> Model -> Html
 summaryTable address model =
   let quickHead s = th [] [text s] in
-  let headers = tr [] [ quickHead "Url", quickHead "Notes", quickHead "Edit" ] in
+  let headers = tr [] <| List.map quickHead ["Url", "Notes", "Done", "Edit"] in
   let rows = for (filteredList model) (\ noteModel ->
     tr [] [
       td [] [ a [ href noteModel.url ] [text (trim 150 noteModel.url)] ],
       td [] [ text noteModel.notes ],
+      td [] [ text <| if noteModel.done then "Done" else ""],
       td [] [ button [onClick address (Edit noteModel.url)] [ text "Edit" ] ]
     ]
   )
