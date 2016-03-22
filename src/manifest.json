@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Capodici's Notes",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "content_scripts": [
     {
       "matches": [
