@@ -6,6 +6,7 @@ import Summary
 import Effects exposing (..)
 import Task
 import StartApp
+import Shared exposing (NoteModel)
 
 port modeString : String
 port tabUrl : String
@@ -17,7 +18,7 @@ mode =
   if modeString == "summary" then ModeSummary
   else ModePopup
 
-popupApp : StartApp.App Popup.Model
+popupApp : StartApp.App NoteModel
 popupApp = Popup.app tabUrl
 
 summaryApp : StartApp.App Summary.Model

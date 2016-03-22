@@ -4,20 +4,21 @@ import Json.Encode
 import Json.Decode exposing ((:=))
 import String
 
-type alias Model =
+type alias NoteModel =
   {
+    url : String,
     done : Bool,
     notes : String
   }
 
-encode : Model -> Json.Encode.Value
+encode : NoteModel -> Json.Encode.Value
 encode m = Json.Encode.object [
   ("n", Json.Encode.string m.notes),
   ("d", Json.Encode.bool m.done)]
 
-decode : Json.Decode.Decoder Model
+decode : Json.Decode.Decoder NoteModel
 decode =
-    Json.Decode.object2 (\n d -> { notes = n, done = d})
+    Json.Decode.object2 (\n d -> { notes = n, done = d, url = ""})
       ("n" := Json.Decode.string)
       ("d" := Json.Decode.bool)
 

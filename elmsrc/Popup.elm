@@ -8,13 +8,11 @@ import StartApp exposing (start)
 import Effects exposing (..)
 import ExtensionStorage
 import Task exposing (Task)
-import Shared exposing (encode, decode, trim)
+import Shared exposing (NoteModel, encode, decode, trim)
 
-type alias Model = { entry : Shared.Model, url : String }
-
-app : String -> StartApp.App Model
+app : String -> StartApp.App NoteModel
 app url = start {
-  init = ({ entry = { done = False, notes = "" }, url = url }, retrieve url),
+  init = ({ done = False, notes = "", url = url }, retrieve url),
   update = update,
   view = view,
   inputs = []
@@ -25,11 +23,11 @@ type Action =
   | UpdateDone Bool
   | Saved
   | DoNothing
-  | Load Shared.Model
+  | Load NoteModel
 
-store : Model -> Effects Action
+store : NoteModel -> Effects Action
 store =
-  (\m -> ExtensionStorage.setItem m.url (encode m.entry)) >>
+  (\m -> ExtensionStorage.setItem m.url (encode m)) >>
   Task.toMaybe >>
   Task.map (always Saved) >>
   Effects.task
@@ -40,34 +38,32 @@ retrieve url =
   Task.toMaybe |>
   Task.map (\r -> case r of
     Nothing -> DoNothing
-    Just m -> Load m) |>
+    Just m -> Load {m | url = url}) |>
   Effects.task
 
-update : Action -> Model -> (Model, Effects Action)
+update : Action -> NoteModel -> (NoteModel, Effects Action)
 update action m =
-  let mentry = m.entry in
-    case action of
-      UpdateNote s -> let newModel = { m | entry = { mentry | notes = s }} in (newModel, store newModel)
-      UpdateDone d -> let newModel = { m | entry = { mentry | done = d }} in (newModel, store newModel)
-      Saved -> ( m, Effects.none)
-      DoNothing -> ( m, Effects.none)
-      Load e' -> ( { m | entry = e'} , Effects.none )
+  case action of
+    UpdateNote s -> let newModel = { m | notes = s } in (newModel, store newModel)
+    UpdateDone d -> let newModel = { m | done = d } in (newModel, store newModel)
+    Saved -> ( m, Effects.none)
+    DoNothing -> ( m, Effects.none)
+    Load newModel -> ( newModel , Effects.none )
 
-view : Signal.Address Action -> Model -> Html
+view : Signal.Address Action -> NoteModel -> Html
 view address model =
-  let mentry = model.entry in
-    div [ class "popupContainer" ] [
-      h2 [] [text "General Notes"],
-      textarea [
-        value mentry.notes,
-        on "input" targetValue (message address << UpdateNote),
-        style [("width","100%"),("height","100px"),("resize","none")]] [],
-      h2 [] [text "Completed?"],
-      input [
-        checked mentry.done,
-        type' "checkbox",
-        on "change" targetChecked (message address << UpdateDone)
-        ] [],
-      text "click here to mark this page as one you have dealt with.",
-      div [ id "summaryLink"] [ a [ href "extension.html?mode=summary", target "_blank"] [text "Your notes..."]]
-    ]
+  div [ class "popupContainer" ] [
+    h2 [] [text "General Notes"],
+    textarea [
+      value model.notes,
+      on "input" targetValue (message address << UpdateNote),
+      style [("width","100%"),("height","100px"),("resize","none")]] [],
+    h2 [] [text "Completed?"],
+    input [
+      checked model.done,
+      type' "checkbox",
+      on "change" targetChecked (message address << UpdateDone)
+      ] [],
+    text "click here to mark this page as one you have dealt with.",
+    div [ id "summaryLink"] [ a [ href "extension.html?mode=summary", target "_blank"] [text "Your notes..."]]
+  ]
