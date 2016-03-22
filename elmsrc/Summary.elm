@@ -60,10 +60,13 @@ update action m = case action of
   Refresh -> (m, retrieve)
   Edit url -> ({m | popup = m.list |> List.filter (\m -> m.url == url) |> List.head }, Effects.none)
   PopupAction popupAction ->
-    case m.popup of
-      Nothing -> (m, Effects.none)
-      Just popup -> let (newPopup, effects) = Popup.update popupAction popup in
-        ({m | popup = Just newPopup}, Effects.map PopupAction effects)
+    case popupAction of
+      Popup.Close -> ({ m | popup = Nothing }, retrieve)
+      _ ->
+        case m.popup of
+          Nothing -> (m, Effects.none)
+          Just popup -> let (newPopup, effects) = Popup.update popupAction popup in
+            ({m | popup = Just newPopup}, Effects.map PopupAction effects)
 
 view : Signal.Address Action -> Model -> Html
 view address model = div [] <| [
@@ -74,7 +77,7 @@ view address model = div [] <| [
   button [id "refresh", onClick address Refresh] [text "Refresh"]] ++
   (case model.popup of
     Nothing -> []
-    Just popup -> [Popup.view (forwardTo address PopupAction) popup])
+    Just popup -> [Popup.view Popup.SummaryEdit (forwardTo address PopupAction) popup])
 
 summaryTable : Signal.Address Action -> Model -> Html
 summaryTable address model =

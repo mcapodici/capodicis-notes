@@ -2,7 +2,7 @@ module Popup where
 
 import Html exposing (..)
 import Html.Attributes exposing (style, type', value, checked, href, target, id, class, title)
-import Html.Events exposing (on, targetValue, targetChecked)
+import Html.Events exposing (on, targetValue, targetChecked, onClick)
 import Signal exposing (message)
 import StartApp exposing (start)
 import Effects exposing (..)
@@ -14,7 +14,7 @@ app : String -> StartApp.App NoteModel
 app url = start {
   init = ({ done = False, notes = "", url = url }, retrieve url),
   update = update,
-  view = view,
+  view = view Regular,
   inputs = []
   }
 
@@ -24,6 +24,9 @@ type Action =
   | Saved
   | DoNothing
   | Load NoteModel
+  | Close
+
+type Mode = Regular | SummaryEdit
 
 store : NoteModel -> Effects Action
 store =
@@ -49,9 +52,10 @@ update action m =
     Saved -> ( m, Effects.none)
     DoNothing -> ( m, Effects.none)
     Load newModel -> ( newModel , Effects.none )
-
-view : Signal.Address Action -> NoteModel -> Html
-view address model =
+    Close -> (m, Effects.none)
+    
+view : Mode -> Signal.Address Action -> NoteModel -> Html
+view mode address model =
   div [ class "popupContainer" ] [
     h2 [] [text "General Notes"],
     textarea [
@@ -65,5 +69,8 @@ view address model =
       on "change" targetChecked (message address << UpdateDone)
       ] [],
     text "click here to mark this page as one you have dealt with.",
-    div [ id "summaryLink"] [ a [ href "extension.html?mode=summary", target "_blank"] [text "Your notes..."]]
+    div [ id "summaryLink"] [
+      case mode of
+        Regular -> a [ href "extension.html?mode=summary", target "_blank"] [text "Your notes..."]
+        SummaryEdit -> button [ onClick address Close ] [ text "Close" ]]
   ]
