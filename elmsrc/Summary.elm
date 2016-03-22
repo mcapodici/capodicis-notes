@@ -1,7 +1,7 @@
 module Summary where
 
 import Html exposing (Html, th, td, tr, text, table, div, a, h2, input, button)
-import Html.Attributes exposing (href, id, type', checked, name)
+import Html.Attributes exposing (href, id, type', checked, name, class)
 import Html.Events exposing (on, targetValue, targetChecked, onClick)
 import Signal exposing (message, forwardTo)
 import StartApp exposing (start)
@@ -77,7 +77,8 @@ view address model = div [] <| [
   button [id "refresh", onClick address Refresh] [text "Refresh"]] ++
   (case model.popup of
     Nothing -> []
-    Just popup -> [Popup.view Popup.SummaryEdit (forwardTo address PopupAction) popup])
+    Just popup -> [div [id "summaryEdit"] [Popup.view Popup.SummaryEdit (forwardTo address PopupAction) popup],
+     div [class "black_overlay"] []])
 
 summaryTable : Signal.Address Action -> Model -> Html
 summaryTable address model =
