@@ -20,7 +20,7 @@ app : StartApp.App Model
 app = start {
   init = ({
     list = [],
-    showDone = False,
+    showDone = True,
     popup = Nothing }
     , retrieve),
   update = update,
