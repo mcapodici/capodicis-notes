@@ -1,11 +1,8 @@
-module Summary where
+module Summary exposing (..)
 
 import Html exposing (Html, th, td, tr, text, table, div, a, h2, input, button)
 import Html.Attributes exposing (href, id, type', checked, name, class)
 import Html.Events exposing (on, targetValue, targetChecked, onClick)
-import Signal exposing (message, forwardTo)
-import StartApp exposing (start)
-import Effects exposing (..)
 import ExtensionStorage
 import Task exposing (Task)
 import Shared exposing (NoteModel, encode, decode, trim)

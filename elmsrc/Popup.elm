@@ -1,24 +1,22 @@
-module Popup where
+module Popup exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (style, type', value, checked, href, target, id, class, title)
 import Html.Events exposing (on, targetValue, targetChecked, onClick)
-import Signal exposing (message)
-import StartApp exposing (start)
-import Effects exposing (..)
 import ExtensionStorage
 import Task exposing (Task)
 import Shared exposing (NoteModel, encode, decode, trim)
+import Html.App
 
-app : String -> StartApp.App NoteModel
-app url = start {
+app : String -> Program Never
+app url = Html.App.program {
   init = ({ done = False, notes = "", url = url }, retrieve url),
   update = update,
   view = view Regular,
-  inputs = []
+  subscriptions = []
   }
 
-type Action =
+type Msg =
     UpdateNote String
   | UpdateDone Bool
   | Saved
@@ -28,45 +26,43 @@ type Action =
 
 type Mode = Regular | SummaryEdit
 
-store : NoteModel -> Effects Action
+store : NoteModel -> Cmd Msg
 store =
   (\m -> ExtensionStorage.setItem m.url (encode m)) >>
   Task.toMaybe >>
-  Task.map (always Saved) >>
-  Effects.task
+  Task.map (always Saved)
 
-retrieve : String -> Effects Action
+retrieve : String -> Cmd Msg
 retrieve url =
   (ExtensionStorage.getItem url decode) |>
   Task.toMaybe |>
   Task.map (\r -> case r of
     Nothing -> DoNothing
-    Just m -> Load {m | url = url}) |>
-  Effects.task
+    Just m -> Load {m | url = url})
 
-update : Action -> NoteModel -> (NoteModel, Effects Action)
+update : Msg -> NoteModel -> (NoteModel, Cmd Msg)
 update action m =
   case action of
     UpdateNote s -> let newModel = { m | notes = s } in (newModel, store newModel)
     UpdateDone d -> let newModel = { m | done = d } in (newModel, store newModel)
-    Saved -> ( m, Effects.none)
-    DoNothing -> ( m, Effects.none)
-    Load newModel -> ( newModel , Effects.none )
-    Close -> (m, Effects.none)
+    Saved -> ( m, Cmd.none)
+    DoNothing -> ( m, Cmd.none)
+    Load newModel -> ( newModel , Cmd.none )
+    Close -> (m, Cmd.none)
     
-view : Mode -> Signal.Address Action -> NoteModel -> Html
+view : Mode -> NoteModel -> Html Msg
 view mode address model =
   div [ class "popupContainer" ] [
     h2 [] [text "General Notes"],
     textarea [
       value model.notes,
-      on "input" targetValue (message address << UpdateNote),
+      on "input" targetValue UpdateNote,
       style [("width","100%"),("height","100px"),("resize","none")]] [],
     h2 [] [text "Completed?"],
     input [
       checked model.done,
       type' "checkbox",
-      on "change" targetChecked (message address << UpdateDone)
+      on "change" targetChecked UpdateDone
       ] [],
     text "click here to mark this page as one you have dealt with.",
     div [ id "summaryLink"] [

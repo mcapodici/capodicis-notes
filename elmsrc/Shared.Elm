@@ -1,4 +1,4 @@
-module Shared where
+module Shared exposing (..)
 
 import Json.Encode
 import Json.Decode exposing ((:=))

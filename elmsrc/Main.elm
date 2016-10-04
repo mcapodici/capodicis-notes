@@ -1,11 +1,9 @@
-module Main where
+module Main exposing (..)
 
 import Html
 import Popup
 import Summary
-import Effects exposing (..)
 import Task
-import StartApp
 import Shared exposing (NoteModel)
 
 port modeString : String
