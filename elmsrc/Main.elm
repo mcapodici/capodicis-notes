@@ -1,37 +1,56 @@
-module Main exposing (..)
+port module Main exposing (..)
 
-import Html
 import Popup
 import Summary
-import Task
-import Shared exposing (NoteModel)
+import Shared
+import Html.App exposing (..)
+import Html exposing (..)
 
-port modeString : String
-port tabUrl : String
+port modeString : (String -> msg)-> Sub msg
+port tabUrl : (String -> msg)-> Sub msg
+
+type alias Flags =
+  { tabUrl : String
+  , modeString : String
+  }
 
 type Mode = ModePopup | ModeSummary
 
-mode : Mode
-mode =
-  if modeString == "summary" then ModeSummary
-  else ModePopup
+main : Program Flags
+main = Html.App.programWithFlags {
+  init = init,
+  update = update,
+  view = view,
+  subscriptions = always Sub.none
+  }
 
-popupApp : StartApp.App NoteModel
-popupApp = Popup.app tabUrl
+update : Msg -> Model -> (Model, Cmd Msg)
+update action m =
+  case (action, m) of
+    (SummaryMsg msg, SummaryMode model) ->
+      let (afterModel, cmd)  = Summary.update msg model in (SummaryMode afterModel, Cmd.map SummaryMsg cmd)
+    (PopupMsg msg, PopupMode model) ->
+      let (afterModel, cmd)  = Popup.update msg model in (PopupMode afterModel, Cmd.map PopupMsg cmd)
+    _ -> (m, Cmd.none)
 
-summaryApp : StartApp.App Summary.Model
-summaryApp = Summary.app
 
-tasks' : Signal (Task.Task Never ())
-tasks' = case mode of
-  ModePopup -> popupApp.tasks
-  ModeSummary -> summaryApp.tasks
+view : Model -> Html Msg
+view m =
+  case m of
+    SummaryMode model -> Html.App.map SummaryMsg (Summary.view model)
+    PopupMode model -> Html.App.map PopupMsg (Popup.view Popup.Regular model)
 
-main : Signal Html.Html
-main = case mode of
-  ModePopup -> popupApp.html
-  ModeSummary -> summaryApp.html
+init : Flags -> (Model, Cmd Msg)
+init flags =
+  if flags.modeString == "summary" then
+    (SummaryMode Summary.initModel, Cmd.none)
+  else
+    (PopupMode { done = False, notes = "", url = flags.tabUrl }, Cmd.map PopupMsg <| Popup.retrieve flags.tabUrl)
 
--- todo make this DRYer
-port tasks : Signal (Task.Task Never ())
-port tasks = tasks'
+type Msg =
+  SummaryMsg Summary.Msg |
+  PopupMsg Popup.Msg
+
+type Model =
+  SummaryMode Summary.Model |
+  PopupMode Shared.NoteModel

@@ -2,36 +2,39 @@ module Summary exposing (..)
 
 import Html exposing (Html, th, td, tr, text, table, div, a, h2, input, button)
 import Html.Attributes exposing (href, id, type', checked, name, class)
-import Html.Events exposing (on, targetValue, targetChecked, onClick)
+import Html.Events exposing (..)
 import ExtensionStorage
 import Task exposing (Task)
 import Shared exposing (NoteModel, encode, decode, trim)
 import Popup
+import Html.App exposing (..)
 
 type alias Model = {
   list : List NoteModel,
   showDone : Bool,
   popup : Maybe NoteModel }
 
-app : StartApp.App Model
-app = start {
-  init = ({
-    list = [],
-    showDone = True,
-    popup = Nothing }
-    , retrieve),
+initModel : Model
+initModel = {
+  list = [],
+  showDone = True,
+  popup = Nothing }
+
+app : Program Never
+app = Html.App.program {
+  init = (initModel, retrieve),
   update = update,
   view = view,
-  inputs = []
+  subscriptions = always Sub.none
   }
 
-type Action =
+type Msg =
   None |
   Show (List NoteModel) |
   ShowDoneChanged Bool |
   Refresh |
   Edit String |
-  PopupAction Popup.Action
+  PopupMsg Popup.Msg
 
 for : List a -> (a -> b) -> List b
 for = flip List.map
@@ -39,46 +42,41 @@ for = flip List.map
 mapT : Task a b -> (b -> c) -> Task a c
 mapT = flip Task.map
 
-retrieve : Effects Action
+retrieve : Cmd Msg
 retrieve = ExtensionStorage.getAll decode
-  |> Task.toMaybe
-  |> Task.map (
-    Maybe.withDefault [] >>
-    List.map (\(url, model) -> { model | url = url }) >>
-    Show
-  )
-  |> Effects.task
+  |> Task.perform (always <| Show []) (List.map (\(url, model) -> { model | url = url }) >> Show)
 
-update : Action -> Model -> (Model, Effects Action)
+update : Msg -> Model -> (Model, Cmd Msg)
 update action m = case action of
-  None -> (m, Effects.none)
-  Show list -> ({m | list = list}, Effects.none)
-  ShowDoneChanged showDone -> ({m | showDone = showDone}, Effects.none)
+  None -> (m, Cmd.none)
+  Show list -> ({m | list = list}, Cmd.none)
+  ShowDoneChanged showDone -> ({m | showDone = showDone}, Cmd.none)
   Refresh -> (m, retrieve)
-  Edit url -> ({m | popup = m.list |> List.filter (\m -> m.url == url) |> List.head }, Effects.none)
-  PopupAction popupAction ->
-    case popupAction of
+  Edit url -> ({m | popup = m.list |> List.filter (\m -> m.url == url) |> List.head }, Cmd.none)
+  PopupMsg popupMsg ->
+    case popupMsg of
       Popup.Close -> ({ m | popup = Nothing }, retrieve)
       _ ->
         case m.popup of
-          Nothing -> (m, Effects.none)
-          Just popup -> let (newPopup, effects) = Popup.update popupAction popup in
-            ({m | popup = Just newPopup}, Effects.map PopupAction effects)
+          Nothing -> (m, Cmd.none)
+          Just popup -> let (newPopup, effects) = Popup.update popupMsg popup in
+            ({m | popup = Just newPopup}, Cmd.map PopupMsg effects)
 
-view : Signal.Address Action -> Model -> Html
-view address model = div [] <| [
+view : Model -> Html Msg
+view model = div [] <| [
   h2 [] [text "Your notes"],
-  input [type' "checkbox", checked model.showDone, on "change" targetChecked (message address << ShowDoneChanged )] [],
+  input [type' "checkbox", checked model.showDone, onCheck ShowDoneChanged] [],
   text "show done tasks",
-  summaryTable address model,
-  button [id "refresh", onClick address Refresh] [text "Refresh"]] ++
+  summaryTable model,
+  button [id "refresh", onClick Refresh] [text "Refresh"]]
+  ++
   (case model.popup of
     Nothing -> []
-    Just popup -> [div [id "summaryEdit"] [Popup.view Popup.SummaryEdit (forwardTo address PopupAction) popup],
+    Just popup -> [div [id "summaryEdit"] [Html.App.map PopupMsg <| Popup.view Popup.SummaryEdit popup],
      div [class "black_overlay"] []])
 
-summaryTable : Signal.Address Action -> Model -> Html
-summaryTable address model =
+summaryTable : Model -> Html Msg
+summaryTable model =
   let quickHead s = th [] [text s] in
   let headers = tr [] <| List.map quickHead ["Url", "Notes", "Done", "Edit"] in
   let rows = for (filteredList model) (\ noteModel ->
@@ -86,7 +84,7 @@ summaryTable address model =
       td [] [ a [ href noteModel.url ] [text (trim 150 noteModel.url)] ],
       td [] [ text noteModel.notes ],
       td [] [ text <| if noteModel.done then "Done" else ""],
-      td [] [ button [onClick address (Edit noteModel.url)] [ text "Edit" ] ]
+      td [] [ button [onClick (Edit noteModel.url)] [ text "Edit" ] ]
     ]
   )
   in

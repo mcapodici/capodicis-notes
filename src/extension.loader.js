@@ -1,6 +1,6 @@
 var query = { active: true, currentWindow: true };
 function callback(tabs) {
-  Elm.fullscreen(Elm.Main, {tabUrl: tabs[0].url, modeString: getParameterByName('mode') || 'popup'});
+	Elm.Main.fullscreen({tabUrl: tabs[0].url, modeString: getParameterByName('mode') || 'popup'});
 }
 chrome.tabs.query(query, callback);
 
