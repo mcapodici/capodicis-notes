@@ -13,7 +13,7 @@ getItem : String -> Decoder value -> Task String value
 getItem key decoder =
   let decode value = case decodeValue decoder value of
     Ok v    -> succeed v
-    Err err -> fail "Failed"
+    Err err -> fail <| "Failed decode: " ++ err
   in
     getItemAsJson key `andThen` decode
 

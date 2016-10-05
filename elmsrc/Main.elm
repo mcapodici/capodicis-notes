@@ -14,8 +14,19 @@ type alias Flags =
   , modeString : String
   }
 
+type Msg =
+  SummaryMsg Summary.Msg |
+  PopupMsg Popup.Msg
+
+type Model =
+  SummaryMode Summary.Model |
+  PopupMode Shared.NoteModel
+
 type Mode = ModePopup | ModeSummary
 
+{-- This program supports two modes: Popup and Summary, so that the same compiled
+file can be used for displaying both windows, which means we don't need to
+compile two Elm programs --}
 main : Program Flags
 main = Html.App.programWithFlags {
   init = init,
@@ -23,6 +34,13 @@ main = Html.App.programWithFlags {
   view = view,
   subscriptions = always Sub.none
   }
+
+init : Flags -> (Model, Cmd Msg)
+init flags =
+  if flags.modeString == "summary" then
+    (SummaryMode Summary.initModel, Cmd.map SummaryMsg Summary.retrieve)
+  else
+    (PopupMode { done = False, notes = "", url = flags.tabUrl }, Cmd.map PopupMsg <| Popup.retrieve flags.tabUrl)
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update action m =
@@ -33,24 +51,8 @@ update action m =
       let (afterModel, cmd)  = Popup.update msg model in (PopupMode afterModel, Cmd.map PopupMsg cmd)
     _ -> (m, Cmd.none)
 
-
 view : Model -> Html Msg
 view m =
   case m of
     SummaryMode model -> Html.App.map SummaryMsg (Summary.view model)
     PopupMode model -> Html.App.map PopupMsg (Popup.view Popup.Regular model)
-
-init : Flags -> (Model, Cmd Msg)
-init flags =
-  if flags.modeString == "summary" then
-    (SummaryMode Summary.initModel, Cmd.none)
-  else
-    (PopupMode { done = False, notes = "", url = flags.tabUrl }, Cmd.map PopupMsg <| Popup.retrieve flags.tabUrl)
-
-type Msg =
-  SummaryMsg Summary.Msg |
-  PopupMsg Popup.Msg
-
-type Model =
-  SummaryMode Summary.Model |
-  PopupMode Shared.NoteModel

@@ -14,7 +14,7 @@ app url = Html.App.program {
   init = ({ done = False, notes = "", url = url }, retrieve url),
   update = update,
   view = view Regular,
-  subscriptions = \_ -> Sub.none
+  subscriptions = always Sub.none
   }
 
 type Msg =

@@ -4,12 +4,11 @@ var _mcapodici$capodicis_notes$Native_ExtensionStorage = function() {
 	{
 		return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
 			chrome.storage.sync.get(key, function(dict){
-				callback(_elm_lang$core$Native_Scheduler.succeed(dict[key]));			
-			})
+				callback(_elm_lang$core$Native_Scheduler.succeed(JSON.parse(dict[key])));
+			});
 		});
-	}	
-	
-	
+	}
+
 	var getAllAsJson = _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
 			chrome.storage.sync.get(null, function(dict){
 				Object.keys(dict).map(function(value, index) {
@@ -17,11 +16,11 @@ var _mcapodici$capodicis_notes$Native_ExtensionStorage = function() {
 				});
 				callback(_elm_lang$core$Native_Scheduler.succeed(dict));
 			});
-		});	
-	
+		});
+
 	function setItem(key, value)
 	{
-		var keyValueObject = {}
+		var keyValueObject = {};
 		keyValueObject[key] = JSON.stringify(value);
 		return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
 			chrome.storage.sync.set(keyValueObject, function(){
@@ -38,7 +37,7 @@ var _mcapodici$capodicis_notes$Native_ExtensionStorage = function() {
 			});
 		});
 	}
-	
+
 	return {
 		getItemAsJson : getItemAsJson,
 		setItem	: F2(setItem),
