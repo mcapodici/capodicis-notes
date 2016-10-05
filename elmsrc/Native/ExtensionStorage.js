@@ -1,58 +1,47 @@
-Elm.Native = Elm.Native || {};
-Elm.Native.ExtensionStorage = {};
-Elm.Native.ExtensionStorage.make = function(localRuntime){
+var _mcapodici$capodicis_notes$Native_ExtensionStorage = function() {
 
-  localRuntime.Native = localRuntime.Native || {};
-  localRuntime.Native.Storage = localRuntime.Native.Storage || {};
-
-  if (localRuntime.Native.Storage.values){
-    return localRuntime.Native.Storage.values;
-  }
-
-  var Task = Elm.Native.Task.make(localRuntime);
-  var Utils = Elm.Native.Utils.make(localRuntime);
-  var List = Elm.Native.List.make(localRuntime);
-
-  var get = function(key){
-    return Task.asyncFunction(function(callback){
-      chrome.storage.sync.get(key, function(dict){
-        callback(Task.succeed(JSON.parse(dict[key])));
-      })
-    });
-  };
-
-  var getAll = Task.asyncFunction(function(callback){
-    chrome.storage.sync.get(null, function(dict){
-      // Convert each dictionary entry into a real object
-      Object.keys(dict).map(function(value, index) {
-        dict[value] = JSON.parse(dict[value]);
-      });
-      callback(Task.succeed(dict));
-    })
-  });
-
-  var setItem = function(key, value){
-    var keyValueObject = {}
-    keyValueObject[key] = JSON.stringify(value);
-    return Task.asyncFunction(function(callback){
-      chrome.storage.sync.set(keyValueObject, function(){
-        lastError = chrome.runtime.lastError;
-        if (!lastError)
-        {
-          callback(Task.succeed());
-        }
-        else
-        {
-          console.log("Storage Call: set has failed with key: " + key + " error: " + lastError);
-          callback(Task.fail("Storage Call: set has failed with key: " + key + " error: " + lastError));
-        }
-      });
-    });
-  };
-
-  return {
-    get       : get,
-    setItem   : F2(setItem),
-    getAll    : getAll
-  };
-};
+	function getItemAsJson(key)
+	{
+		return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+			chrome.storage.sync.get(key, function(dict){
+				callback(_elm_lang$core$Native_Scheduler.succeed(dict[key]));			
+			})
+		});
+	}	
+	
+	
+	var getAllAsJson = _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+			chrome.storage.sync.get(null, function(dict){
+				Object.keys(dict).map(function(value, index) {
+					dict[value] = JSON.parse(dict[value]);
+				});
+				callback(_elm_lang$core$Native_Scheduler.succeed(dict));
+			});
+		});	
+	
+	function setItem(key, value)
+	{
+		var keyValueObject = {}
+		keyValueObject[key] = JSON.stringify(value);
+		return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+			chrome.storage.sync.set(keyValueObject, function(){
+				if (typeof chrome.runtime.lastError === 'undefined' || !chrome.runtime.lastError)
+				{
+					callback(_elm_lang$core$Native_Scheduler.succeed());
+				}
+				else
+				{
+					var lastError = chrome.runtime.lastError;
+					console.log("Storage Call: set has failed with key: " + key + " error: " + lastError);
+					callback(_elm_lang$core$Native_Scheduler.fail("Storage Call: set has failed with key: " + key + " error: " + lastError));
+				}
+			});
+		});
+	}
+	
+	return {
+		getItemAsJson : getItemAsJson,
+		setItem	: F2(setItem),
+		getAllAsJson : getAllAsJson
+	};
+}();

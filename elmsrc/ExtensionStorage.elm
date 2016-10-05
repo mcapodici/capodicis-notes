@@ -6,7 +6,7 @@ import Task exposing (Task, succeed, fail, andThen)
 import Native.ExtensionStorage
 
 getItemAsJson : String -> Task String Value
-getItemAsJson = Native.ExtensionStorage.get
+getItemAsJson = Native.ExtensionStorage.getItemAsJson
 
 -- Do better error detection
 getItem : String -> Decoder value -> Task String value
@@ -21,7 +21,7 @@ setItem : String -> Value -> Task String ()
 setItem = Native.ExtensionStorage.setItem
 
 getAllAsJson : Task String Value
-getAllAsJson = Native.ExtensionStorage.getAll
+getAllAsJson = Native.ExtensionStorage.getAllAsJson
 
 getAll : Decoder value -> Task String (List (String, value))
 getAll decoder =
