@@ -1,13 +1,13 @@
 module Summary exposing (..)
 
-import Html exposing (Html, th, td, tr, text, table, div, a, h2, input, button)
-import Html.Attributes exposing (href, id, type', checked, name, class)
-import Html.Events exposing (..)
 import ExtensionStorage
-import Task exposing (Task)
-import Shared exposing (NoteModel, encode, decode, trim)
+import Html exposing (Html, th, td, tr, text, table, div, a, h2, input, button)
+import Html.App
+import Html.Attributes exposing (href, id, type', checked, name, class)
+import Html.Events exposing (onCheck, onClick)
 import Popup
-import Html.App exposing (..)
+import Shared exposing (NoteModel, encode, decode, trim)
+import Task exposing (Task)
 
 type alias Model = {
   list : List NoteModel,
@@ -19,14 +19,6 @@ initModel = {
   list = [],
   showDone = True,
   popup = Nothing }
-
-app : Program Never
-app = Html.App.program {
-  init = (initModel, retrieve),
-  update = update,
-  view = view,
-  subscriptions = always Sub.none
-  }
 
 type Msg =
   None |

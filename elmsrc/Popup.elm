@@ -1,21 +1,12 @@
 module Popup exposing (..)
 
+import Basics exposing (..)
+import ExtensionStorage
 import Html exposing (..)
 import Html.Attributes exposing (style, type', value, checked, href, target, id, class, title)
-import Html.Events exposing (..)
-import ExtensionStorage
-import Task exposing (Task)
+import Html.Events exposing (onInput, onCheck, onClick)
 import Shared exposing (NoteModel, encode, decode, trim)
-import Html.App
-import Basics exposing (..)
-
-app : String -> Program Never
-app url = Html.App.program {
-  init = ({ done = False, notes = "", url = url }, retrieve url),
-  update = update,
-  view = view Regular,
-  subscriptions = always Sub.none
-  }
+import Task exposing (Task)
 
 type Msg =
     UpdateNote String

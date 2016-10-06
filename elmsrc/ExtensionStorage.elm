@@ -1,14 +1,10 @@
-module ExtensionStorage exposing (..)
+module ExtensionStorage exposing (getItem, getAll, setItem)
 
-import Json.Encode exposing (Value)
 import Json.Decode exposing (Decoder, decodeValue)
-import Task exposing (Task, succeed, fail, andThen)
+import Json.Encode exposing (Value)
 import Native.ExtensionStorage
+import Task exposing (Task, succeed, fail, andThen)
 
-getItemAsJson : String -> Task String Value
-getItemAsJson = Native.ExtensionStorage.getItemAsJson
-
--- Do better error detection
 getItem : String -> Decoder value -> Task String value
 getItem key decoder =
   let decode value = case decodeValue decoder value of
@@ -20,9 +16,6 @@ getItem key decoder =
 setItem : String -> Value -> Task String ()
 setItem = Native.ExtensionStorage.setItem
 
-getAllAsJson : Task String Value
-getAllAsJson = Native.ExtensionStorage.getAllAsJson
-
 getAll : Decoder value -> Task String (List (String, value))
 getAll decoder =
   let decode value = case decodeValue (Json.Decode.keyValuePairs decoder) value of
@@ -30,3 +23,9 @@ getAll decoder =
     Err err -> fail "Failed"
   in
     getAllAsJson `andThen` decode
+
+getItemAsJson : String -> Task String Value
+getItemAsJson = Native.ExtensionStorage.getItemAsJson
+
+getAllAsJson : Task String Value
+getAllAsJson = Native.ExtensionStorage.getAllAsJson

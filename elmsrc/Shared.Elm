@@ -1,7 +1,7 @@
 module Shared exposing (..)
 
-import Json.Encode
 import Json.Decode exposing ((:=))
+import Json.Encode
 import String
 
 type alias NoteModel =

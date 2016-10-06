@@ -1,10 +1,10 @@
 port module Main exposing (..)
 
+import Html exposing (Html)
+import Html.App
 import Popup
-import Summary
 import Shared
-import Html.App exposing (..)
-import Html exposing (..)
+import Summary
 
 port modeString : (String -> msg)-> Sub msg
 port tabUrl : (String -> msg)-> Sub msg
